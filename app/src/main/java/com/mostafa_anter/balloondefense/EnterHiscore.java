@@ -13,6 +13,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+
 public class EnterHiscore extends Activity {
 
 	Surface view;
@@ -23,7 +27,8 @@ public class EnterHiscore extends Activity {
 	String[] hiscorename = new String[10];
 	int score;
 	EditText namebox;
-	
+
+	InterstitialAd mInterstitialAd;
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
@@ -42,13 +47,38 @@ public class EnterHiscore extends Activity {
 		
 		save.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				process_highscore(score, namebox.getText().toString());
-				
+				if (mInterstitialAd.isLoaded()) {
+					mInterstitialAd.show();
+				}else {
+					process_highscore(score, namebox.getText().toString());
+				}
 			}
 		});
-		
+
+
+		// ad
+		mInterstitialAd = new InterstitialAd(this);
+		mInterstitialAd.setAdUnitId("ca-app-pub-1992576069870831/6062315905");
+
+		mInterstitialAd.setAdListener(new AdListener() {
+			@Override
+			public void onAdClosed() {
+				requestNewInterstitial();
+				process_highscore(score, namebox.getText().toString());
+			}
+		});
+
+		requestNewInterstitial();
 	}
-	
+
+	private void requestNewInterstitial() {
+		AdRequest adRequest = new AdRequest.Builder()
+				.addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+				.build();
+
+		mInterstitialAd.loadAd(adRequest);
+	}
+
 	public void loadscore() {
 		// load preferences
 		SharedPreferences hiscores = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

@@ -1,9 +1,11 @@
 package com.mostafa_anter.balloondefense;
 
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +24,8 @@ public class BalloonDefense extends Activity {
 
 	Surface view;
 	WakeLock WL;
+
+	InterstitialAd mInterstitialAd;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,6 +39,18 @@ public class BalloonDefense extends Activity {
 		ad.setAdSize(AdSize.SMART_BANNER);
 		ad.setAdUnitId("ca-app-pub-1992576069870831/8376653905");
 		RelativeLayout layout = new RelativeLayout(this);
+
+		// ins ad
+		mInterstitialAd = new InterstitialAd(this);
+		mInterstitialAd.setAdUnitId("ca-app-pub-1992576069870831/6062315905");
+
+		mInterstitialAd.setAdListener(new AdListener() {
+			@Override
+			public void onAdClosed() {
+				requestNewInterstitial();
+			}
+		});
+		requestNewInterstitial();
 
 		//layout
 		view = new Surface(this, this);	
@@ -70,6 +86,15 @@ public class BalloonDefense extends Activity {
 		if(rotation == 270)
 			view.default_lanscape = false;
 	}
+
+	private void requestNewInterstitial() {
+		AdRequest adRequest = new AdRequest.Builder()
+				.addTestDevice("SEE_YOUR_LOGCAT_TO_GET_YOUR_DEVICE_ID")
+				.build();
+
+		mInterstitialAd.loadAd(adRequest);
+	}
+
 	@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
     super.onKeyDown(keyCode, event);
@@ -101,4 +126,11 @@ public class BalloonDefense extends Activity {
 	
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (mInterstitialAd.isLoaded()) {
+			mInterstitialAd.show();
+		}
+	}
 }
