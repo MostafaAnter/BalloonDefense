@@ -48,6 +48,8 @@ public class BalloonDefense extends Activity {
 			@Override
 			public void onAdClosed() {
 				requestNewInterstitial();
+                view.resume();
+                WL.acquire();
 			}
 		});
 		requestNewInterstitial();
@@ -115,8 +117,13 @@ public class BalloonDefense extends Activity {
 	
 	protected void onResume(){
 		super.onResume();
-		view.resume();
-		WL.acquire();
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        }else {
+            view.resume();
+            WL.acquire();
+        }
+
 	}
 	
 	@Override
@@ -124,13 +131,5 @@ public class BalloonDefense extends Activity {
 		super.onDestroy();
 		WL.release();
 	
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		if (mInterstitialAd.isLoaded()) {
-			mInterstitialAd.show();
-		}
 	}
 }
